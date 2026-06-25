@@ -48,7 +48,6 @@ export function createFolder(folderName: string): void {
   };
 
   storage.folderOrder.push(newId);
-  storage.selectedFolder = newId;
 
   saveStorage(storage);
 }

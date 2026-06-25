@@ -1,6 +1,16 @@
 import React from "@moonlight-mod/wp/react";
 import * as storageModule from "@moonlight-mod/wp/gifSorter_storage";
 
+const backgroundColor = "#393a41";
+const menuColor = "#2c2d32";
+const primaryTextColor = "#dbdee1";
+const secondaryTextColor = "#7d7d84";
+const warningColor = "#f23f43";
+const highlightColor = "#5865f2";
+const outlineColor = "#1e1f22";
+
+const FOLDER_NAME_MAX_LENGTH = 16;
+
 function FolderBar({ gifPickerThis }: { gifPickerThis: any }) {
   const storage = storageModule.getStorage();
   const [creating, setCreating] = React.useState(false);
@@ -11,90 +21,178 @@ function FolderBar({ gifPickerThis }: { gifPickerThis: any }) {
   const selectedFolder = storage.selectedFolder;
   const isFolderSelected = selectedFolder !== "all";
 
+  const inputStyle = {
+    background: menuColor,
+    border: `1px solid ${outlineColor}`,
+    borderRadius: "6px",
+    color: primaryTextColor,
+    fontSize: "14px",
+    padding: "5px 8px",
+    width: "120px",
+    outline: "none",
+    flexShrink: 0
+  };
+
+  const actionBtnStyle = (variant: "default" | "danger" = "default") => ({
+    background: variant === "danger" ? warningColor : menuColor,
+    border: `1px solid ${variant === "danger" ? warningColor : outlineColor}`,
+    borderRadius: "6px",
+    color: variant === "danger" ? "#ffffff" : primaryTextColor,
+    cursor: "pointer",
+    fontSize: "18px",
+    fontWeight: "bold",
+    width: "32px",
+    height: "32px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+    padding: "0",
+    lineHeight: "1"
+  });
+
   return (
     <div
       style={{
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
-        gap: "8px",
-        padding: "4px 8px",
-        overflowX: "auto",
+        padding: "6px 8px",
         flexShrink: 0,
-        background: "var(--background-secondary)"
+        background: backgroundColor
       }}
     >
-      <button
-        onClick={() => {
-          storageModule.setSelectedFolder("all");
-          gifPickerThis.forceUpdate();
+      <style>{`
+        .gss-input::placeholder { color: ${secondaryTextColor}; }
+        .gss-scroll::-webkit-scrollbar { display: none; }
+        .gss-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+      `}</style>
+
+      {/* Scrollable tabs area: takes all leftover space, clips its own scrollbar */}
+      <div
+        className="gss-scroll"
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          gap: "6px",
+          overflowX: "auto",
+          flex: 1,
+          minWidth: 0
         }}
       >
-        All
-      </button>
-      {storage.folderOrder.map((id: string) => (
+        {/* "All" tab */}
         <button
-          key={id}
           onClick={() => {
-            storageModule.setSelectedFolder(id);
+            storageModule.setSelectedFolder("all");
             gifPickerThis.forceUpdate();
           }}
+          style={{
+            background: selectedFolder === "all" ? highlightColor : menuColor,
+            border: `1px solid ${outlineColor}`,
+            borderRadius: "6px",
+            color: primaryTextColor,
+            cursor: "pointer",
+            fontSize: "14px",
+            fontWeight: selectedFolder === "all" ? "600" : "normal",
+            padding: "5px 12px",
+            whiteSpace: "nowrap",
+            flexShrink: 0,
+            height: "30px"
+          }}
         >
-          {storage.folders[id].name}
+          All
         </button>
-      ))}
 
-      {creating && (
-        <input
-          autoFocus
-          value={newFolderName}
-          onChange={(e) => setNewFolderName(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && newFolderName.trim().length > 0) {
-              storageModule.createFolder(newFolderName.trim());
-              setNewFolderName("");
-              setCreating(false);
+        {/* Folder tabs */}
+        {storage.folderOrder.map((id: string) => (
+          <button
+            key={id}
+            onClick={() => {
+              storageModule.setSelectedFolder(id);
               gifPickerThis.forceUpdate();
-            }
-            if (e.key === "Escape") {
-              setNewFolderName("");
-              setCreating(false);
-            }
-          }}
-          placeholder="Folder name..."
-          style={{ width: "100px" }}
-        />
-      )}
+            }}
+            style={{
+              background: selectedFolder === id ? highlightColor : menuColor,
+              border: `1px solid ${outlineColor}`,
+              borderRadius: "6px",
+              color: primaryTextColor,
+              cursor: "pointer",
+              fontSize: "14px",
+              fontWeight: selectedFolder === id ? "600" : "normal",
+              padding: "5px 12px",
+              whiteSpace: "nowrap",
+              flexShrink: 0,
+              height: "30px"
+            }}
+          >
+            {storage.folders[id].name}
+          </button>
+        ))}
 
-      {renaming && isFolderSelected && (
-        <input
-          autoFocus
-          value={renameName}
-          onChange={(e) => setRenameName(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && renameName.trim().length > 0) {
-              storageModule.renameFolder(selectedFolder, renameName.trim());
-              setRenameName("");
-              setRenaming(false);
-              gifPickerThis.forceUpdate();
-            }
-            if (e.key === "Escape") {
-              setRenameName("");
-              setRenaming(false);
-            }
-          }}
-          placeholder="New name..."
-          style={{ width: "100px" }}
-        />
-      )}
+        {/* New folder name input */}
+        {creating && (
+          <input
+            autoFocus
+            className="gss-input"
+            value={newFolderName}
+            maxLength={FOLDER_NAME_MAX_LENGTH}
+            onChange={(e) => setNewFolderName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && newFolderName.trim().length > 0) {
+                storageModule.createFolder(newFolderName.trim());
+                setNewFolderName("");
+                setCreating(false);
+                gifPickerThis.forceUpdate();
+              }
+              if (e.key === "Escape") {
+                setNewFolderName("");
+                setCreating(false);
+              }
+            }}
+            placeholder="Folder name..."
+            style={inputStyle}
+          />
+        )}
 
-      <div style={{ marginLeft: "auto", display: "flex", gap: "4px", flexShrink: 0 }}>
+        {/* Rename folder input */}
+        {renaming && isFolderSelected && (
+          <input
+            autoFocus
+            className="gss-input"
+            value={renameName}
+            maxLength={FOLDER_NAME_MAX_LENGTH}
+            onChange={(e) => setRenameName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && renameName.trim().length > 0) {
+                storageModule.renameFolder(selectedFolder, renameName.trim());
+                setRenameName("");
+                setRenaming(false);
+                gifPickerThis.forceUpdate();
+              }
+              if (e.key === "Escape") {
+                setRenameName("");
+                setRenaming(false);
+              }
+            }}
+            placeholder="New name..."
+            style={inputStyle}
+          />
+        )}
+      </div>
+
+      {/* Thin divider separating scroll area from fixed buttons */}
+      <div style={{ width: "1px", height: "20px", background: outlineColor, margin: "0 8px", flexShrink: 0 }} />
+
+      {/* Action buttons: anchored outside the scroll area, always visible */}
+      <div style={{ display: "flex", gap: "4px", flexShrink: 0 }}>
         {!creating && (
           <button
             onClick={() => {
               setRenaming(false);
               setCreating(true);
             }}
+            style={actionBtnStyle()}
           >
             +
           </button>
@@ -106,8 +204,9 @@ function FolderBar({ gifPickerThis }: { gifPickerThis: any }) {
               setCreating(false);
               setRenaming(true);
             }}
+            style={actionBtnStyle()}
           >
-            ✏️
+            ✎
           </button>
         )}
         {isFolderSelected && (
@@ -116,8 +215,9 @@ function FolderBar({ gifPickerThis }: { gifPickerThis: any }) {
               storageModule.deleteFolder(selectedFolder);
               gifPickerThis.forceUpdate();
             }}
+            style={actionBtnStyle("danger")}
           >
-            🗑️
+            ✕
           </button>
         )}
       </div>
@@ -165,14 +265,14 @@ function GifOverlay({ item }: { item: any }) {
           style={{
             position: "absolute",
             bottom: "6px",
-            right: "6px",
-            background: "#2b2d31",
-            border: "1px solid #1e1f22",
+            left: "6px",
+            background: menuColor,
+            border: `1px solid ${outlineColor}`,
             borderRadius: "4px",
             cursor: "pointer",
             padding: "2px 7px",
             zIndex: 2,
-            color: "white",
+            color: primaryTextColor,
             fontSize: "18px",
             fontWeight: "bold",
             lineHeight: 1,
@@ -192,8 +292,8 @@ function GifOverlay({ item }: { item: any }) {
             position: "absolute",
             bottom: "36px",
             right: "6px",
-            background: "#2b2d31",
-            border: "1px solid #1e1f22",
+            background: menuColor,
+            border: `1px solid ${outlineColor}`,
             borderRadius: "8px",
             padding: "4px",
             zIndex: 3,
@@ -204,7 +304,7 @@ function GifOverlay({ item }: { item: any }) {
           }}
         >
           {storage.folderOrder.length === 0 && (
-            <div style={{ color: "#949ba4", padding: "6px 8px", fontSize: "14px" }}>No folders yet</div>
+            <div style={{ color: secondaryTextColor, padding: "6px 8px", fontSize: "14px" }}>No folders yet</div>
           )}
           {storage.folderOrder.map((id: string) => (
             <div
@@ -220,7 +320,7 @@ function GifOverlay({ item }: { item: any }) {
                 padding: "6px 8px",
                 borderRadius: "4px",
                 cursor: "pointer",
-                color: "#dbdee1",
+                color: primaryTextColor,
                 fontSize: "14px"
               }}
             >
@@ -229,7 +329,7 @@ function GifOverlay({ item }: { item: any }) {
           ))}
           {isInCurrentFolder && (
             <>
-              <div style={{ height: "1px", background: "#1e1f22", margin: "4px 0" }} />
+              <div style={{ height: "1px", background: outlineColor, margin: "4px 0" }} />
               <div
                 onClick={(e) => {
                   e.stopPropagation();
@@ -242,7 +342,7 @@ function GifOverlay({ item }: { item: any }) {
                   padding: "6px 8px",
                   borderRadius: "4px",
                   cursor: "pointer",
-                  color: "#f23f43",
+                  color: warningColor,
                   fontSize: "14px"
                 }}
               >
