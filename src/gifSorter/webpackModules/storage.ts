@@ -1,3 +1,5 @@
+import "gifSorter/webpackModules/types";
+
 interface GifFolder {
   name: string;
   gifs: string[];
@@ -76,4 +78,12 @@ function removeGifFromFolder(id: string, gifUrl: string) {
   const storage = getStorage();
   storage.folders[id].gifs = storage.folders[id].gifs.filter((url) => url !== gifUrl);
   saveStorage(storage);
+}
+
+export function filterByFolder(favorites: GifFavorite[]): GifFavorite[] {
+  const storage = getStorage();
+  if (storage.selectedFolder === "all") return favorites;
+  const folder = storage.folders[storage.selectedFolder];
+  if (!folder) return favorites; // safety fallback
+  return favorites.filter((gif) => folder.gifs.includes(gif.url));
 }

@@ -1,29 +1,18 @@
 import { ExtensionWebExports } from "@moonlight-mod/types";
 
-// https://moonlight-mod.github.io/ext-dev/webpack/#patching
 export const patches: ExtensionWebExports["patches"] = [
   {
-    find: /"User Settings",/g,
+    find: "1TOSaJsWtnhe0",
     replace: {
-      match: /"User Settings",/g,
-      replacement: '"hacked by gifSorter lol",'
+      match: /data:\s*(\i)\s*===\s*(\i\.\i\.FAVORITES)\s*\?\s*(\i)\s*:\s*(\i)\s*,/,
+      replacement: (_orig, resultType, favoritesConst, favArray, searchArray) =>
+        `data: ${resultType} === ${favoritesConst} ? require("gifSorter_storage").filterByFolder(${favArray}) : ${searchArray},`
     }
   }
 ];
 
-// https://moonlight-mod.github.io/ext-dev/webpack/#webpack-module-insertion
 export const webpackModules: ExtensionWebExports["webpackModules"] = {
-  entrypoint: {
-    dependencies: [
-      {
-        ext: "gifSorter",
-        id: "someLibrary"
-      }
-    ],
-    entrypoint: true
-  },
-
-  someLibrary: {
-    // Keep this object, even if it's empty! It's required for the module to be loaded.
+  storage: {
+    dependencies: []
   }
 };
