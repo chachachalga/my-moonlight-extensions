@@ -8,6 +8,7 @@
     "tagline": "A QoL extension to help users sort and use gifs.",
     "description": "",
     "authors": ["chachachalga"],
+    "tags": ["qol"],
     "source": "https://github.com/chachachalga/my-moonlight-extensions"
   }
 }
