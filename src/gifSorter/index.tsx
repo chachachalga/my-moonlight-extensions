@@ -23,9 +23,9 @@ export const patches: ExtensionWebExports["patches"] = [
     find: "handleClickItem",
     replace: [
       {
-        match: /renderExtras:\s*\(\)\s*=>\s*\(0,(\i)\.jsx\)\((\i)\.\i,\{className:(\i)\.\i,\.\.\.(\i)\}\)/,
-        replacement: (_orig, createElement, y, O, o) =>
-          `renderExtras: () => require("gifSorter_folderBar").renderGifExtras(${o}, (0,${createElement}.jsx)(${y}.A, {className: ${O}.uJ, ...${o}}))`
+        match: /renderExtras:\s*\(\)\s*=>\s*\(0,(\i)\.jsx\)\((\i)\.(\i),\{className:(\i)\.(\i),\.\.\.(\i)\}\)/,
+        replacement: (_orig, jsx, componentObj, componentProp, styleObj, styleProp, props) =>
+          `renderExtras: () => require("gifSorter_folderBar").renderGifExtras(${props}, (0,${jsx}.jsx)(${componentObj}.${componentProp}, {className: ${styleObj}.${styleProp}, ...${props}}))`
       }
     ]
   }
