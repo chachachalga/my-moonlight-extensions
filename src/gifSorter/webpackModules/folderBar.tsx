@@ -83,7 +83,7 @@ function FolderBar({ gifPickerThis }: { gifPickerThis: any }) {
       >
         {/* "All" tab */}
         <button
-          onClick={() => {
+          onClick={async () => {
             storageModule.setSelectedFolder("all");
             gifPickerThis.forceUpdate();
           }}
@@ -108,7 +108,7 @@ function FolderBar({ gifPickerThis }: { gifPickerThis: any }) {
         {storage.folderOrder.map((id: string) => (
           <button
             key={id}
-            onClick={() => {
+            onClick={async () => {
               storageModule.setSelectedFolder(id);
               gifPickerThis.forceUpdate();
             }}
@@ -138,9 +138,9 @@ function FolderBar({ gifPickerThis }: { gifPickerThis: any }) {
             value={newFolderName}
             maxLength={FOLDER_NAME_MAX_LENGTH}
             onChange={(e) => setNewFolderName(e.target.value)}
-            onKeyDown={(e) => {
+            onKeyDown={async (e) => {
               if (e.key === "Enter" && newFolderName.trim().length > 0) {
-                storageModule.createFolder(newFolderName.trim());
+                await storageModule.createFolder(newFolderName.trim());
                 setNewFolderName("");
                 setCreating(false);
                 gifPickerThis.forceUpdate();
@@ -163,9 +163,9 @@ function FolderBar({ gifPickerThis }: { gifPickerThis: any }) {
             value={renameName}
             maxLength={FOLDER_NAME_MAX_LENGTH}
             onChange={(e) => setRenameName(e.target.value)}
-            onKeyDown={(e) => {
+            onKeyDown={async (e) => {
               if (e.key === "Enter" && renameName.trim().length > 0) {
-                storageModule.renameFolder(selectedFolder, renameName.trim());
+                await storageModule.renameFolder(selectedFolder, renameName.trim());
                 setRenameName("");
                 setRenaming(false);
                 gifPickerThis.forceUpdate();
@@ -211,8 +211,8 @@ function FolderBar({ gifPickerThis }: { gifPickerThis: any }) {
         )}
         {isFolderSelected && (
           <button
-            onClick={() => {
-              storageModule.deleteFolder(selectedFolder);
+            onClick={async () => {
+              await storageModule.deleteFolder(selectedFolder);
               gifPickerThis.forceUpdate();
             }}
             style={actionBtnStyle("danger")}
@@ -309,9 +309,9 @@ function GifOverlay({ item }: { item: any }) {
           {storage.folderOrder.map((id: string) => (
             <div
               key={id}
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.stopPropagation();
-                storageModule.addGifToFolder(id, item.url);
+                await storageModule.addGifToFolder(id, item.url);
                 setOpen(false);
               }}
               onMouseEnter={(e) => (e.currentTarget.style.background = "#35373c")}
@@ -331,9 +331,9 @@ function GifOverlay({ item }: { item: any }) {
             <>
               <div style={{ height: "1px", background: outlineColor, margin: "4px 0" }} />
               <div
-                onClick={(e) => {
+                onClick={async (e) => {
                   e.stopPropagation();
-                  storageModule.removeGifFromFolder(selectedFolder, item.url);
+                  await storageModule.removeGifFromFolder(selectedFolder, item.url);
                   setOpen(false);
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.background = "#35373c")}
